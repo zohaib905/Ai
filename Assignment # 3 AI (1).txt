@@ -1,0 +1,85 @@
+>>>>>>>>>>>>>>>>>>>>>>>>>> Assignment # 3 <<<<<<<<<<<<<<<<<<<<<<<<
+
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+
+# Load the dataset
+data = load_breast_cancer()
+X, y = data.data, data.target
+
+# Split the dataset into training and test sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Standardize the features
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Train a logistic regression model
+model = LogisticRegression(random_state=42)
+model.fit(X_train, y_train)
+
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+
+# Make predictions on the test set
+y_pred = model.predict(X_test)
+
+# Calculate the accuracy metrics
+accuracy = accuracy_score(y_test, y_pred)
+precision = precision_score(y_test, y_pred)
+recall = recall_score(y_test, y_pred)
+f1 = f1_score(y_test, y_pred)
+
+accuracy, precision, recall, f1
+
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Generate the confusion matrix
+cm = confusion_matrix(y_test, y_pred)
+
+# Plot the confusion matrix
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=data.target_names, yticklabels=data.target_names)
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.title('Confusion Matrix')
+plt.show()
+
+cm
+
+from sklearn.metrics import roc_curve, roc_auc_score
+
+# Predict the probabilities
+y_prob = model.predict_proba(X_test)[:, 1]
+
+# Calculate the ROC curve
+fpr, tpr, _ = roc_curve(y_test, y_prob)
+roc_auc = roc_auc_score(y_test, y_prob)
+
+# Plot the ROC curve
+plt.figure()
+plt.plot(fpr, tpr, color='darkorange', lw=2, label='ROC curve (area = %0.2f)' % roc_auc)
+plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('Receiver Operating Characteristic (ROC) Curve')
+plt.legend(loc="lower right")
+plt.show()
+
+roc_auc
+
+from sklearn.model_selection import cross_val_score
+import numpy as np
+
+# Perform 5-fold cross-validation
+cv_scores = cross_val_score(model, X, y, cv=5, scoring='accuracy')
+
+mean_cv_accuracy = np.mean(cv_scores)
+std_cv_accuracy = np.std(cv_scores)
+
+mean_cv_accuracy, std_cv_accuracy
